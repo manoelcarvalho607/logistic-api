@@ -4,10 +4,7 @@
 package com.logistic.api.controller;
 
 import java.util.List;
-import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.logistic.api.domain.model.Cliente;
 import com.logistic.api.domain.repository.ClienteRepository;
+import com.logistic.api.domain.service.CatalogoClienteService;
 
 /**
  * @author manoel.carvalho
@@ -41,6 +39,9 @@ public class ClienteController {
 	@Autowired
 	private ClienteRepository clienteRepository;
 	
+	@Autowired
+	private CatalogoClienteService catalogoClienteService;
+	
 	@GetMapping
 	public List<Cliente> listar() {
 		return clienteRepository.findAll();
@@ -56,12 +57,15 @@ public class ClienteController {
 				.orElse(ResponseEntity.notFound().build());
 		
 		
+		
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public Cliente adicionar(@Valid @RequestBody Cliente cliente) {
-		return clienteRepository.save(cliente);
+		
+		return catalogoClienteService.salvar(cliente);
+	
 	}
 	
 	
@@ -72,7 +76,9 @@ public class ClienteController {
 		}
 		
 		cliente.setId(clienteId);
-		cliente = clienteRepository.save(cliente);
+		
+		
+		cliente = catalogoClienteService.salvar(cliente);
 		
 		return ResponseEntity.ok(cliente);
 	}
@@ -83,7 +89,8 @@ public class ClienteController {
 			return ResponseEntity.notFound().build();
 		}
 		
-		clienteRepository.deleteById(clienteId);
+
+		catalogoClienteService.excluir(clienteId);
 		
 		return ResponseEntity.noContent().build();
 	}
